@@ -9,7 +9,7 @@ checkRoot() {
 	fi
 }
 
-execute(){
+execute() {
 	inode=$(ls -i $1 | cut -d " " -f 1)
 	LBA=$(debugfs -R "stat <$inode>" $2 2> /dev/null | grep '(0' | cut -d ':' -f 2 | cut -d '-' -f1)
 	blocksize=$(tune2fs -l $2 | grep "Block size" | awk '{print $3}')
@@ -18,8 +18,11 @@ execute(){
 	if [[ $filesize -le $blocksize ]];
 	then
 		slackspace=$(echo "$blocksize-$filesize" | bc);
+	elif [[ $(echo "(((($filesize/$blocksize)*$blocksize)))" | bc) -le $filesize ]];
+	then
+		slackspace=$(echo "(((($filesize/$blocksize)*$blocksize))+$blocksize)-$filesize" | bc);
 	else
-		slackspace=$(echo "$filesize-(($filesize/$blocksize)*$blocksize)" | bc);
+		echo "Bad_Calc";
 	fi
 	echo -e "Offset: $offset\nBlock Size: $blocksize\nInode: $inode\nFile Size: $filesize bytes\nSlackSpace no Arquivo: $slackspace bytes nao utilizados"
 }

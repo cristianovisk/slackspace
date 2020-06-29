@@ -1,4 +1,5 @@
 #!/bin/bash
+
 checkRoot() {
 	if [ $(whoami) != "root" ];
 	then
@@ -24,7 +25,11 @@ execute() {
 	else
 		echo "Bad_Calc";
 	fi
-	echo -e "Offset: $offset\nBlock Size: $blocksize\nInode: $inode\nFile Size: $filesize bytes\nSlackSpace no Arquivo: $slackspace bytes nao utilizados"
+	offset_initslack=$(echo $offset+$filesize | bc)
+	offset_finalslack=$(echo $offset_initslack+$slackspace | bc)
+	echo -e "Offset: $offset\nBlock Size: $blocksize\nInode: $inode\nFile Size: $filesize bytes\nSlackSpace no Arquivo: $slackspace bytes nao utilizados\nOffset Inicial do SlackSpace: $offset_initslack\nOffset Final do SlackSpace: $offset_finalslack"
+	dd if=$2 of=file.dump ibs=1 skip=$offset_initslack count=$slackspace 2> /dev/null
+	echo -e "\n---\n - SlackSpace Extraido em $PWD/file.dump"
 }
 
 checkRoot $1 $2

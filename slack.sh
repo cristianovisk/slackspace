@@ -16,6 +16,7 @@ execute() {
 	blocksize=$(tune2fs -l $2 | grep "Block size" | awk '{print $3}')
 	filesize=$(du -b $1 | awk '{print $1}')
 	offset=$(echo "($LBA*8)*512" | bc)
+	device=$2
 	if [[ $filesize -le $blocksize ]];
 	then
 		slackspace=$(echo "$blocksize-$filesize" | bc);
@@ -31,5 +32,7 @@ execute() {
 	dd if=$2 of=file.dump ibs=1 skip=$offset_initslack count=$slackspace 2> /dev/null
 	echo -e "\n---\n - SlackSpace Extraido em $PWD/file.dump"
 }
-
+#sudo dd if=$file_ciphed of=$device seek=$offset_initslack obs=1
+#openssl enc -k password -aes256 -base64 -e -in msg.txt -out /dev/stdout 2> /dev/null
+#https://jameshfisher.com/2017/03/09/openssl-enc/
 checkRoot $1 $2

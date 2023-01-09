@@ -33,7 +33,7 @@ calcSlack() {
         then
                 echo -e "Offset: $offset\nBlock Size: $blocksize\nInode: $inode\nFile Size: $filesize bytes\nSlackSpace no Arquivo: $slackspace bytes nao utilizados\nOffset Inicial do SlackSpace: $offset_initslack\nOffset Final do SlackSpace: $offset_finalslack"
         else
-                echo "$offset_initslack:$slackspace:$offset"
+                echo "$offset_initslack:$slackspace:$offset:$filesize"
         fi
         #dd if=$2 of=file.dump ibs=1 skip=$offset_initslack count=$slackspace 2> /dev/null
 }
@@ -63,7 +63,8 @@ dumpInSlack() {
 showHex(){
         data=$(calcSlack $1 $2 1)
         offset=$(echo $data | cut -d ':' -f 3)
-        hd -s $offset $2 | head
+        echo hd -s $offset -n 4096 $2
+        hd -s $offset -n 4096 $2
 }
 
 args() {
